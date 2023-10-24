@@ -105,13 +105,17 @@
                $.getJSON( "/_check", { text: txt },
                         function(data) {
                            rsval = data.result.is_valid;
-                           console.log("rsval: " + rsval)
-                           if (rsval == true) {
+                           if (rsval == "true") {
+                           // if the word is valid and hasn't been found
                               $("#attempt").val("");
                               $("#results").append(txt + " ");
-                           } 
-                           else if (rsval == "done"){
-                              console.log("redirect ")
+                           } else if (rsval == "alrdy_fnd"){
+                              $("#messages").html("You already found " + txt);
+                           } else if (rsval == "not_in_list"){
+                              $("#messages").html(txt + " isn't in the list of words");
+                           } else if (rsval == "wrong_letters"){
+                              $("#messages").html(txt + " can\'t be made from the letters");
+                           } else if (rsval == "done"){
                               window.location.replace("/success");
                            }
                         }
@@ -121,6 +125,8 @@
          <br />
          <h2>Matched Words</h2>
          <p id="results">
+         </p>
+         <p class="message" id="messages">
          </p>
       </div>
       <!-- container -->

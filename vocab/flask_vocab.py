@@ -60,16 +60,6 @@ def index():
     return flask.render_template('vocab.html')
 
 
-#@app.route("/keep_going")
-#def keep_going():
-   # """
-   # After initial use of index, we keep the same scrambled
-   # word and try to get more matches
-   # """
-   # flask.g.vocab = WORDS.as_list()
-   # return flask.render_template('vocab.html')
-
-
 @app.route("/success")
 def success():
     return flask.render_template('success.html')
@@ -77,14 +67,12 @@ def success():
 
 #######################
 # Form handler.
-#   You'll need to change this to a
-#   a JSON request handler
 #######################
 
 @app.route("/_check")
 def check():
     """
-    User has submitted the form with a word ('attempt')
+    User has typed a word ('attempt') in a text box
     that should be formed from the jumble and on the
     vocabulary list.  We respond depending on whether
     the word is on the vocab list (therefore correctly spelled),
@@ -107,54 +95,27 @@ def check():
         # Cool, they found a new word
         matches.append(text)
         flask.session["matches"] = matches
-        rslt = {"is_valid": True}
+        rslt = {"is_valid": "true"}
     elif text in matches:
-        flask.flash("You already found {}".format(text))
-        rslt = {"is_valid": False}
+        #flask.flash("You already found {}".format(text))
+        rslt = {"is_valid": "alrdy_fnd"}
     elif not matched:
-        flask.flash("{} isn't in the list of words".format(text))
-        rslt = {"is_valid": False}
+        #flask.flash("{} isn't in the list of words".format(text))
+        rslt = {"is_valid": "not_in_list"}
     elif not in_jumble:
-        flask.flash(
-            '"{}" can\'t be made from the letters {}'.format(text, jumble))
-        rslt = {"is_valid": False}
+        #flask.flash(
+            #'"{}" can\'t be made from the letters {}'.format(text, jumble))
+        rslt = {"is_valid": "wrong_letters"}
     else:
         app.logger.debug("This case shouldn't happen!")
         assert False  # Raises AssertionError
 
-    # Solved enough, or keep going?
+    # Check if user has solved enough words
     if len(matches) >= flask.session["target_count"]:
         rslt = {"is_valid": "done"}
-    return flask.jsonify(result=rslt)
-  
 
-
-###############
-# AJAX request handlers
-#   These return JSON, rather than rendering pages.
-###############
-
-@app.route("/_example")
-def example():
-    """
-    Example ajax request handler
-    """
-    app.logger.debug("Got a JSON request")
-    rslt = {"key": "value"}
     return flask.jsonify(result=rslt)
 
-
-#################
-# Functions used within the templates
-#################
-
-@app.template_filter('filt')
-def format_filt(something):
-    """
-    Example of a filter that can be used within
-    the Jinja2 code
-    """
-    return "Not what you asked for"
 
 ###################
 #   Error handlers
